@@ -57,27 +57,18 @@ if (!$stmtLatest->execute()) {
     exit;
 }
 
-// Lịch sử: tối đa 1 dòng / 30 giây để bảng/biểu đồ theo ngày không quá dày.
-$insertHistory = true;
-$resMax = $conn->query('SELECT MAX(`time`) AS last_t FROM sensor_data');
-if ($resMax && ($rowMax = $resMax->fetch_assoc()) && !empty($rowMax['last_t'])) {
-    $lastTs = strtotime($rowMax['last_t']);
-    if ($lastTs !== false && (time() - $lastTs) < 30) {
-        $insertHistory = false;
-    }
-}
+// Lịch sử: đúng 1 dòng / 30s theo “ô” thời gian VN (slot_ts). Cùng ô = cập nhật dòng đó (không chờ POST đúng 30s sau lần trước).
+$slot = intdiv((int) time(), 30);
+$stmtHist = $conn->prepare(
+    'INSERT INTO sensor_data (slot_ts, `time`, temp, tds, status, mode) VALUES (?, NOW(), ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE `time` = VALUES(`time`), temp = VALUES(temp), tds = VALUES(tds), status = VALUES(status), mode = VALUES(mode)'
+);
+$stmtHist->bind_param('issss', $slot, $tempStr, $tdsStr, $status, $mode);
 
-if ($insertHistory) {
-    $stmt = $conn->prepare(
-        'INSERT INTO sensor_data (`time`, temp, tds, status, mode) VALUES (NOW(), ?, ?, ?, ?)'
-    );
-    $stmt->bind_param('ssss', $tempStr, $tdsStr, $status, $mode);
-
-    if (!$stmt->execute()) {
-        http_response_code(500);
-        echo 'ERR';
-        exit;
-    }
+if (!$stmtHist->execute()) {
+    http_response_code(500);
+    echo 'ERR';
+    exit;
 }
 
 echo 'OK';
