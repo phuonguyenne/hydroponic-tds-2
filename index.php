@@ -269,6 +269,7 @@ font-size:15px;
 <th>TDS</th>
 <th>Temp</th>
 <th>Status</th>
+<th>Mode cây</th>
 </tr>
 </thead>
 <tbody id="tableData"></tbody>
@@ -427,7 +428,7 @@ let max=(mode==="non")?700:900;
 let html="",labels=[],tdsArr=[],tempArr=[];
 
 if(!data.length){
-tableData.innerHTML="<tr><td colspan=\"4\">Chưa có dữ liệu cho ngày đã chọn.</td></tr>";
+tableData.innerHTML="<tr><td colspan=\"5\">Chưa có dữ liệu cho ngày đã chọn.</td></tr>";
 if(chart1){chart1.destroy();chart1=null;}
 if(chart2){chart2.destroy();chart2=null;}
 if(chart3){chart3.destroy();chart3=null;}
@@ -442,7 +443,8 @@ let xt=parseFloat(x.tds)||0;
 let xtmp=parseFloat(x.temp)||0;
 if(xt<min||xtmp<18){cls="low-row";status="LOW (CẢNH BÁO)";}
 else if(xt>max||xtmp>30){cls="high-row";status="HIGH (CẢNH BÁO)";}
-html+=`<tr class="${cls}"><td>${x.time}</td><td>${x.tds}</td><td>${x.temp}</td><td>${status}</td></tr>`;
+let rowMode=(x.mode==="truongthanh")?"🌿 Trưởng thành":"🌱 Cây non";
+html+=`<tr class="${cls}"><td>${x.time}</td><td>${x.tds}</td><td>${x.temp}</td><td>${status}</td><td>${rowMode}</td></tr>`;
 });
 
 data.slice().reverse().forEach(x=>{
