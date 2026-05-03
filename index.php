@@ -281,6 +281,7 @@ font-size:15px;
 let chart1,chart2,chart3;
 let mode="non";
 let currentTab=0;
+let overviewInFlight=false;
 
 function todayStr(){
 return new Date().toISOString().slice(0,10);
@@ -307,6 +308,7 @@ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 document.querySelectorAll(".tab")[i].classList.add("active");
 const bar=document.getElementById("dateToolbar");
 if(bar) bar.style.display=(i===1||i===2)?"block":"none";
+if(i===0) loadOverview();
 if(i===1||i===2) loadHistory();
 }
 
@@ -386,8 +388,12 @@ warnTemp.innerHTML="<div class='warn-title'>✅ NHIỆT ĐỘ PHÙ HỢP</div><d
 }
 
 function loadOverview(){
-fetch("get-latest.php")
-.then(r=>r.json())
+if(currentTab!==0) return;
+if(overviewInFlight) return;
+overviewInFlight=true;
+const url="get-latest.php?t="+Date.now();
+fetch(url,{cache:"no-store",headers:{"Cache-Control":"no-cache"}})
+.then(r=>{if(!r.ok) throw new Error("latest");return r.json();})
 .then(data=>{
 if(!data.length){
 tds.innerHTML="--";
@@ -402,7 +408,9 @@ let d=data[0];
 tds.innerHTML=d.tds;
 temp.innerHTML=d.temp;
 applyWarnings(d.tds,d.temp);
-});
+})
+.catch(()=>{})
+.finally(()=>{overviewInFlight=false;});
 }
 
 function loadHistory(){
@@ -452,8 +460,8 @@ syncModeFromServer().then(()=>{
 loadOverview();
 });
 
-// Tổng quan: poll nhanh (1s) để gần với Serial; dữ liệu lấy từ get-latest (mỗi POST của ESP đều cập nhật).
-setInterval(loadOverview,1000);
+// Tổng quan: poll 200ms khi đang ở tab 0 (gần Serial); không chồng request; không cache.
+setInterval(loadOverview,200);
 setInterval(updateStatus,1000);
 setInterval(function(){
 if(currentTab===1||currentTab===2) loadHistory();

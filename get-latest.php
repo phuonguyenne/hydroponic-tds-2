@@ -2,6 +2,8 @@
 include 'config.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 
 $result = $conn->query('SELECT * FROM sensor_latest WHERE id = 1 LIMIT 1');
 $data = [];
