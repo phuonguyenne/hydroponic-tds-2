@@ -1,0 +1,8 @@
+# Git / IDE (smaller build context; local docker builds)
+.git
+.gitignore
+.cursor
+
+# Not needed inside the image
+README.md
+**/*.md
