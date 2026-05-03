@@ -8,8 +8,10 @@
 const char* ssid = "Phuong Uyen";
 const char* password = "0914859672hong.";
 
-String serverInsert = "https://hydroponic-tds-1-production.up.railway.app/insert.php";
-String serverMode   = "https://hydroponic-tds-1-production.up.railway.app/get-mode.php";
+// Production (Railway). Đổi domain nếu Railway cấp URL khác.
+const char* kServerBase = "https://hydroponic-tds-2-production.up.railway.app";
+String serverInsert = String(kServerBase) + "/insert.php";
+String serverMode   = String(kServerBase) + "/get-mode.php";
 // NTP
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 7 * 3600;   // +7 VN

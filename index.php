@@ -14,7 +14,7 @@ display:flex;align-items:center;justify-content:space-between;
 padding:10px 40px;background:#fff;
 box-shadow:0 2px 5px rgba(0,0,0,0.1)
 }
-.header img{height:80px}
+.header img{height:80px;width:80px;object-fit:contain}
 
 .title{text-align:center;flex:1}
 
@@ -172,13 +172,13 @@ font-size:18px;
 <body>
 
 <div class="header">
-<img src="logo.png">
+<img src="logo.svg" alt="Logo trường">
 <div class="title">
 <h2>TRƯỜNG ĐẠI HỌC NÔNG LÂM THÀNH PHỐ HỒ CHÍ MINH</h2>
 <h3>KHOA CƠ KHÍ CÔNG NGHỆ</h3>
 <p>GIÁM SÁT NHIỆT ĐỘ DUNG DỊCH VÀ NỒNG ĐỘ DINH DƯỠNG TRÊN MÔ HÌNH TRỒNG RAU THỦY CANH</p>
 </div>
-<img src="logo_khoacokhi.png">
+<img src="logo_khoacokhi.svg" alt="Logo khoa">
 </div>
 
 <div class="tabs">

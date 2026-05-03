@@ -7,8 +7,9 @@
 const char* ssid = "Ori Coffee";
 const char* password = "12345670";
 
-// URL gửi data
-String serverName = "http://192.168.88.225/tds_web/insert.php";
+// Production (Railway). Đổi domain nếu Railway cấp URL khác.
+const char* kServerBase = "https://hydroponic-tds-2-production.up.railway.app";
+String serverName = String(kServerBase) + "/insert.php";
 
 // ================= PIN =================
 #define ONE_WIRE_BUS  4

@@ -8,8 +8,10 @@
 const char* ssid = "Phuong Uyen";
 const char* password = "0914859672hong.";
 
-String serverInsert = "http://192.168.1.18/tds_web/insert.php";
-String serverMode   = "http://192.168.1.18/tds_web/get-mode.php";
+// Production (Railway). Đổi domain nếu Railway cấp URL khác.
+const char* kServerBase = "https://hydroponic-tds-2-production.up.railway.app";
+String serverInsert = String(kServerBase) + "/insert.php";
+String serverMode   = String(kServerBase) + "/get-mode.php";
 
 // NTP
 const char* ntpServer = "pool.ntp.org";
