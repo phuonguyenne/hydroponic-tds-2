@@ -452,7 +452,8 @@ syncModeFromServer().then(()=>{
 loadOverview();
 });
 
-setInterval(loadOverview,4000);
+// Tổng quan: poll nhanh (1s) để gần với Serial; dữ liệu lấy từ get-latest (mỗi POST của ESP đều cập nhật).
+setInterval(loadOverview,1000);
 setInterval(updateStatus,1000);
 setInterval(function(){
 if(currentTab===1||currentTab===2) loadHistory();
