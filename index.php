@@ -187,13 +187,13 @@ font-size:15px;
 <body>
 
 <div class="header">
-<img src="logo.svg?v=2" width="80" height="80" alt="Logo trường">
+<img src="logo.png?v=2" width="80" height="80" alt="Logo trường">
 <div class="title">
 <h2>TRƯỜNG ĐẠI HỌC NÔNG LÂM THÀNH PHỐ HỒ CHÍ MINH</h2>
 <h3>KHOA CƠ KHÍ CÔNG NGHỆ</h3>
 <p>GIÁM SÁT NHIỆT ĐỘ DUNG DỊCH VÀ NỒNG ĐỘ DINH DƯỠNG TRÊN MÔ HÌNH TRỒNG RAU THỦY CANH</p>
 </div>
-<img src="logo_khoacokhi.svg?v=2" width="80" height="80" alt="Logo khoa">
+<img src="logo_khoacokhi.png?v=2" width="80" height="80" alt="Logo khoa">
 </div>
 
 <div class="tabs">
