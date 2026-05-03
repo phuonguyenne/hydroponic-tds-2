@@ -1,5 +1,8 @@
 FROM --platform=linux/amd64 php:8.2-apache
 
+ENV TZ=Asia/Ho_Chi_Minh
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo "$TZ" > /etc/timezone
+
 RUN docker-php-ext-install mysqli
 
 # Apache must load exactly one MPM (mod_php requires prefork).
