@@ -7,7 +7,7 @@ $date = isset($_GET['date']) ? trim((string) $_GET['date']) : '';
 
 if ($date !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
     $stmt = $conn->prepare(
-        'SELECT * FROM sensor_data WHERE DATE(`time`) = ? ORDER BY id ASC'
+        'SELECT * FROM sensor_data WHERE DATE(`time`) = ? ORDER BY id DESC'
     );
     $stmt->bind_param('s', $date);
     $stmt->execute();

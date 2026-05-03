@@ -431,10 +431,8 @@ if(chart3){chart3.destroy();chart3=null;}
 return;
 }
 
+/* Bảng: API trả id DESC — mới nhất trên cùng. Biểu đồ: cần thời gian tăng dần → đảo bản sao. */
 data.forEach(x=>{
-labels.push(x.time);
-tdsArr.push(parseFloat(x.tds)||0);
-tempArr.push(parseFloat(x.temp)||0);
 let cls="safe-row";
 let status="SAFE (TDS OK + TEMP OK)";
 let xt=parseFloat(x.tds)||0;
@@ -442,6 +440,12 @@ let xtmp=parseFloat(x.temp)||0;
 if(xt<min||xtmp<18){cls="low-row";status="LOW (CẢNH BÁO)";}
 else if(xt>max||xtmp>30){cls="high-row";status="HIGH (CẢNH BÁO)";}
 html+=`<tr class="${cls}"><td>${x.time}</td><td>${x.tds}</td><td>${x.temp}</td><td>${status}</td></tr>`;
+});
+
+data.slice().reverse().forEach(x=>{
+labels.push(x.time);
+tdsArr.push(parseFloat(x.tds)||0);
+tempArr.push(parseFloat(x.temp)||0);
 });
 
 tableData.innerHTML=html;
