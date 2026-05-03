@@ -41,17 +41,43 @@ if ($mode === 'non') {
     }
 }
 
-$stmt = $conn->prepare(
-    'INSERT INTO sensor_data (`time`, temp, tds, status, mode) VALUES (NOW(), ?, ?, ?, ?)'
-);
 $tempStr = (string) $temp;
 $tdsStr = (string) $tds;
-$stmt->bind_param('ssss', $tempStr, $tdsStr, $status, $mode);
 
-if (!$stmt->execute()) {
+// Luôn cập nhật bản “mới nhất” cho tab Tổng quan (poll 3–5s).
+$stmtLatest = $conn->prepare(
+    'INSERT INTO sensor_latest (id, `time`, temp, tds, status, mode) VALUES (1, NOW(), ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE `time` = VALUES(`time`), temp = VALUES(temp), tds = VALUES(tds), status = VALUES(status), mode = VALUES(mode)'
+);
+$stmtLatest->bind_param('ssss', $tempStr, $tdsStr, $status, $mode);
+
+if (!$stmtLatest->execute()) {
     http_response_code(500);
     echo 'ERR';
     exit;
+}
+
+// Lịch sử: tối đa 1 dòng / 30 giây để bảng/biểu đồ theo ngày không quá dày.
+$insertHistory = true;
+$resMax = $conn->query('SELECT MAX(`time`) AS last_t FROM sensor_data');
+if ($resMax && ($rowMax = $resMax->fetch_assoc()) && !empty($rowMax['last_t'])) {
+    $lastTs = strtotime($rowMax['last_t']);
+    if ($lastTs !== false && (time() - $lastTs) < 30) {
+        $insertHistory = false;
+    }
+}
+
+if ($insertHistory) {
+    $stmt = $conn->prepare(
+        'INSERT INTO sensor_data (`time`, temp, tds, status, mode) VALUES (NOW(), ?, ?, ?, ?)'
+    );
+    $stmt->bind_param('ssss', $tempStr, $tdsStr, $status, $mode);
+
+    if (!$stmt->execute()) {
+        http_response_code(500);
+        echo 'ERR';
+        exit;
+    }
 }
 
 echo 'OK';

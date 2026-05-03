@@ -15,3 +15,15 @@ if ($conn->connect_error) {
 }
 
 $conn->set_charset('utf8mb4');
+
+// Bảng 1 dòng: luôn cập nhật mỗi lần ESP POST (tổng quan poll nhanh). Lịch sử vẫn ở sensor_data (throttle 30s trong insert.php).
+$conn->query(
+    'CREATE TABLE IF NOT EXISTS sensor_latest (
+  id INT NOT NULL PRIMARY KEY,
+  `time` DATETIME NOT NULL,
+  temp VARCHAR(32) NOT NULL,
+  tds VARCHAR(32) NOT NULL,
+  status VARCHAR(16) NOT NULL,
+  mode VARCHAR(16) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+);

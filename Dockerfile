@@ -25,6 +25,9 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
 
 COPY . /var/www/html
 
+# Cho phép .htaccess (MIME SVG, v.v.)
+RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/sites-available/000-default.conf
+
 RUN a2enmod rewrite \
  && apache2ctl configtest
 

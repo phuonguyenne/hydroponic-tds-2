@@ -166,25 +166,45 @@ color:#e67e22;
 margin-top:10px;
 font-size:18px;
 }
+
+#dateToolbar{
+display:none;
+padding:12px;
+text-align:center;
+background:#dfe6e9;
+border-bottom:1px solid #bdc3c7;
+font-weight:600;
+}
+#dateToolbar input[type=date]{
+padding:6px 10px;
+border:1px solid #95a5a6;
+border-radius:6px;
+font-size:15px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-<img src="logo.svg" alt="Logo trường">
+<img src="logo.svg?v=2" width="80" height="80" alt="Logo trường">
 <div class="title">
 <h2>TRƯỜNG ĐẠI HỌC NÔNG LÂM THÀNH PHỐ HỒ CHÍ MINH</h2>
 <h3>KHOA CƠ KHÍ CÔNG NGHỆ</h3>
 <p>GIÁM SÁT NHIỆT ĐỘ DUNG DỊCH VÀ NỒNG ĐỘ DINH DƯỠNG TRÊN MÔ HÌNH TRỒNG RAU THỦY CANH</p>
 </div>
-<img src="logo_khoacokhi.svg" alt="Logo khoa">
+<img src="logo_khoacokhi.svg?v=2" width="80" height="80" alt="Logo khoa">
 </div>
 
 <div class="tabs">
 <button onclick="openTab(0)">🏠 Tổng quan</button>
 <button onclick="openTab(1)">📊 Biểu đồ</button>
 <button onclick="openTab(2)">📋 Dữ liệu</button>
+</div>
+
+<div id="dateToolbar">
+<label for="historyDate">Ngày xem dữ liệu &amp; biểu đồ: </label>
+<input type="date" id="historyDate" title="Lọc theo ngày">
 </div>
 
 <!-- TAB 1 -->
@@ -260,46 +280,73 @@ font-size:18px;
 
 let chart1,chart2,chart3;
 let mode="non";
+let currentTab=0;
 
-function openTab(i){
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-document.querySelectorAll(".tab")[i].classList.add("active");
+function todayStr(){
+return new Date().toISOString().slice(0,10);
 }
 
-function setMode(m){
-mode=m;
-fetch("data.php?mode="+m);
-
+function applyModeUI(m){
+mode=(m==="truongthanh")?"truongthanh":"non";
 document.querySelectorAll(".btn-mode").forEach(b=>b.classList.remove("active-btn"));
-if(m=="non") btnNon.classList.add("active-btn");
+if(mode==="non") btnNon.classList.add("active-btn");
 else btnTruong.classList.add("active-btn");
 }
 
-function clearData(){
-if(confirm("Bạn có chắc muốn xóa toàn bộ dữ liệu?")){
-fetch("data.php?clear=1").then(()=>alert("Đã xóa dữ liệu"));
+function syncModeFromServer(){
+return fetch("get-mode.php").then(r=>r.text()).then(t=>{
+t=t.trim();
+if(t==="truongthanh"||t==="non") applyModeUI(t);
+else applyModeUI("non");
+}).catch(()=>applyModeUI("non"));
 }
+
+function openTab(i){
+currentTab=i;
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+document.querySelectorAll(".tab")[i].classList.add("active");
+const bar=document.getElementById("dateToolbar");
+if(bar) bar.style.display=(i===1||i===2)?"block":"none";
+if(i===1||i===2) loadHistory();
+}
+
+function setMode(m){
+fetch("data.php?mode="+encodeURIComponent(m)).then(r=>{
+if(!r.ok) throw new Error("mode");
+return r.text();
+}).then(()=>{
+applyModeUI(m);
+loadOverview();
+if(currentTab===1||currentTab===2) loadHistory();
+}).catch(()=>alert("Không lưu được chế độ. Kiểm tra máy chủ."));
+}
+
+function clearData(){
+if(!confirm("Bạn có chắc muốn xóa toàn bộ dữ liệu?")) return;
+fetch("data.php?clear=1").then(r=>{
+if(!r.ok) throw new Error("clear");
+return r.text();
+}).then(()=>{
+loadOverview();
+loadHistory();
+alert("Đã xóa dữ liệu");
+}).catch(()=>alert("Xóa thất bại."));
 }
 
 function exportExcel(){window.location="export.php";}
 
-/* ===== STATUS 3 TRẠNG THÁI ===== */
 function updateStatus(){
 let now=new Date();
 let h=now.getHours();
 let m=now.getMinutes();
 let s=now.getSeconds();
-
 let total=h*3600+m*60+s;
 let offset=total-6*3600;
-
 if(offset<0){
 systemStatus.innerHTML="🌙 ĐANG NGHỈ BAN ĐÊM (tránh úng rễ)";
 return;
 }
-
 let cycle=offset%2400;
-
 if(cycle<600){
 systemStatus.innerHTML="💧 ĐANG TƯỚI (10 phút)";
 }else{
@@ -307,91 +354,109 @@ systemStatus.innerHTML="🛑 ĐANG NGHỈ (30 phút)";
 }
 }
 
-function loadData(){
-fetch("get-data.php")
-.then(r=>r.json())
-.then(data=>{
+function applyWarnings(tdsVal,tempVal){
+let min=(mode==="non")?500:700;
+let max=(mode==="non")?700:900;
+let t=parseFloat(tdsVal);
+let tmp=parseFloat(tempVal);
+if(isNaN(t)) t=0;
+if(isNaN(tmp)) tmp=0;
 
-if(!data.length) return;
-
-let d=data[0];
-
-tds.innerHTML=d.tds;
-temp.innerHTML=d.temp;
-
-let min=(mode=="non")?500:700;
-let max=(mode=="non")?700:900;
-
-/* ===== CẢNH BÁO CHUẨN ===== */
-if(d.tds<min){
+if(t<min){
 warnTDS.className="card low";
 warnTDS.innerHTML="<div class='warn-title'>⚠️ TDS THẤP</div><div class='warn-text'>❌  Thiếu dinh dưỡng<br>📉 Ảnh hưởng => cây chậm lớn, lá nhỏ, rễ yếu<br>✅ Khuyến nghị => thêm dung dịch A+B từ từ</div>";
-}
-else if(d.tds>max){
+}else if(t>max){
 warnTDS.className="card high";
 warnTDS.innerHTML="<div class='warn-title'>⚠️ TDS CAO</div><div class='warn-text'>❌  Dung dịch quá đậm<br>📉 Ảnh hưởng => cháy rễ, cây sốc dinh dưỡng<br>✅ Khuyến nghị => thêm nước để pha loãng</div>";
-}
-else{
+}else{
 warnTDS.className="card ok";
 warnTDS.innerHTML="<div class='warn-title'>✅ TDS PHÙ HỢP</div><div class='warn-text'>Hệ thống đang cân bằng dinh dưỡng</div>";
 }
 
-if(d.temp>30){
+if(tmp>30){
 warnTemp.className="card high";
 warnTemp.innerHTML="<div class='warn-title'>⚠️ NHIỆT CAO</div><div class='warn-text'>❌  Nhiệt dung dịch cao<br>📉 Ảnh hưởng => giảm oxy, hại rễ<br>✅ Khuyến nghị => làm mát dung dịch</div>";
-}
-else if(d.temp<18){
+}else if(tmp<18){
 warnTemp.className="card low";
 warnTemp.innerHTML="<div class='warn-title'>⚠️ NHIỆT THẤP</div><div class='warn-text'>❌  Nhiệt thấp<br>📉 Ảnh hưởng => cây hấp thụ kém<br>✅ Khuyến nghị => tăng nhiệt</div>";
-}
-else{
+}else{
 warnTemp.className="card ok";
 warnTemp.innerHTML="<div class='warn-title'>✅ NHIỆT ĐỘ PHÙ HỢP</div><div class='warn-text'>Nhiệt độ phù hợp cho cây</div>";
 }
+}
 
-/* TABLE */
+function loadOverview(){
+fetch("get-latest.php")
+.then(r=>r.json())
+.then(data=>{
+if(!data.length){
+tds.innerHTML="--";
+temp.innerHTML="--";
+warnTDS.className="card ok";
+warnTDS.innerHTML="<div class='warn-title'>Chưa có dữ liệu</div><div class='warn-text'>Đợi thiết bị gửi lần đầu.</div>";
+warnTemp.className="card ok";
+warnTemp.innerHTML="<div class='warn-title'>—</div><div class='warn-text'>—</div>";
+return;
+}
+let d=data[0];
+tds.innerHTML=d.tds;
+temp.innerHTML=d.temp;
+applyWarnings(d.tds,d.temp);
+});
+}
+
+function loadHistory(){
+let day=document.getElementById("historyDate");
+let q=day&&day.value?("?date="+encodeURIComponent(day.value)):"?date="+encodeURIComponent(todayStr());
+fetch("get-data.php"+q)
+.then(r=>r.json())
+.then(data=>{
+let min=(mode==="non")?500:700;
+let max=(mode==="non")?700:900;
 let html="",labels=[],tdsArr=[],tempArr=[];
 
+if(!data.length){
+tableData.innerHTML="<tr><td colspan=\"4\">Chưa có dữ liệu cho ngày đã chọn.</td></tr>";
+if(chart1){chart1.destroy();chart1=null;}
+if(chart2){chart2.destroy();chart2=null;}
+if(chart3){chart3.destroy();chart3=null;}
+return;
+}
+
 data.forEach(x=>{
-
 labels.push(x.time);
-tdsArr.push(x.tds);
-tempArr.push(x.temp);
-
+tdsArr.push(parseFloat(x.tds)||0);
+tempArr.push(parseFloat(x.temp)||0);
 let cls="safe-row";
 let status="SAFE (TDS OK + TEMP OK)";
-
-if(x.tds<min || x.temp<18){
-cls="low-row";
-status="LOW (CẢNH BÁO)";
-}
-else if(x.tds>max || x.temp>30){
-cls="high-row";
-status="HIGH (CẢNH BÁO)";
-}
-
-html+=`<tr class="${cls}">
-<td>${x.time}</td>
-<td>${x.tds}</td>
-<td>${x.temp}</td>
-<td>${status}</td>
-</tr>`;
+let xt=parseFloat(x.tds)||0;
+let xtmp=parseFloat(x.temp)||0;
+if(xt<min||xtmp<18){cls="low-row";status="LOW (CẢNH BÁO)";}
+else if(xt>max||xtmp>30){cls="high-row";status="HIGH (CẢNH BÁO)";}
+html+=`<tr class="${cls}"><td>${x.time}</td><td>${x.tds}</td><td>${x.temp}</td><td>${status}</td></tr>`;
 });
 
 tableData.innerHTML=html;
 
-/* CHART */
 if(chart1){chart1.destroy();chart2.destroy();chart3.destroy();}
-
-chart1=new Chart(c1,{type:'line',data:{labels:labels,datasets:[{data:tempArr,borderColor:'red'}]},options:{plugins:{legend:{display:false}}}});
-chart2=new Chart(c2,{type:'line',data:{labels:labels,datasets:[{data:tdsArr,borderColor:'blue'}]},options:{plugins:{legend:{display:false}}}});
-chart3=new Chart(c3,{type:'line',data:{labels:labels,datasets:[{label:'Temp',data:tempArr,borderColor:'red'},{label:'TDS',data:tdsArr,borderColor:'blue'}]}});
-
+chart1=new Chart(c1,{type:"line",data:{labels:labels,datasets:[{data:tempArr,borderColor:"red"}]},options:{plugins:{legend:{display:false}},responsive:true}});
+chart2=new Chart(c2,{type:"line",data:{labels:labels,datasets:[{data:tdsArr,borderColor:"blue"}]},options:{plugins:{legend:{display:false}},responsive:true}});
+chart3=new Chart(c3,{type:"line",data:{labels:labels,datasets:[{label:"Temp",data:tempArr,borderColor:"red"},{label:"TDS",data:tdsArr,borderColor:"blue"}]},options:{responsive:true}});
 });
 }
 
-setInterval(loadData,2000);
+document.getElementById("historyDate").value=todayStr();
+document.getElementById("historyDate").addEventListener("change",loadHistory);
+
+syncModeFromServer().then(()=>{
+loadOverview();
+});
+
+setInterval(loadOverview,4000);
 setInterval(updateStatus,1000);
+setInterval(function(){
+if(currentTab===1||currentTab===2) loadHistory();
+},30000);
 
 </script>
 
