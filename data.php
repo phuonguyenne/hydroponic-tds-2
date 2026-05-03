@@ -9,8 +9,7 @@ if(isset($_GET['mode'])){
 
 // CLEAR DATA
 if(isset($_GET['clear'])){
-    $conn->query("TRUNCATE TABLE sensor_data");
-    $conn->query("DELETE FROM sensor_latest WHERE id = 1");
-    echo "CLEARED";
+    $conn->query('TRUNCATE TABLE sensor_data');
+    echo 'CLEARED';
 }
 ?>

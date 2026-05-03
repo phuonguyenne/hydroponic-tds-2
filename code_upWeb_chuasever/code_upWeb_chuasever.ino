@@ -31,7 +31,6 @@ float b = -3183.67;
 
 // CONTROL
 unsigned long lastMeasure = 0;
-unsigned long lastSend = 0;
 unsigned long lastSync = 0;
 String mode = "non";
 
@@ -74,8 +73,8 @@ void loop() {
     lastSync = millis();
   }
 
-  // Đo mỗi 5 giây
-  if (millis() - lastMeasure > 5000) {
+  // Đo + Serial + POST web mỗi 1 giây (đồng bộ với bảng/tổng quan, không gom 30s).
+  if (millis() - lastMeasure > 1000) {
     lastMeasure = millis();
 
     float tds = readTDS();
@@ -88,11 +87,7 @@ void loop() {
     Serial.print("Temp (calib): "); Serial.println(temp);
     Serial.print("Mode: "); Serial.println(mode);
 
-    // Chỉ gửi lên server mỗi 30 giây
-    if (millis() - lastSend > 30000) {
-      sendData(tds, temp);
-      lastSend = millis();
-    }
+    sendData(tds, temp);
   }
 
   delay(10);

@@ -282,6 +282,7 @@ let chart1,chart2,chart3;
 let mode="non";
 let currentTab=0;
 let overviewInFlight=false;
+let historyInFlight=false;
 
 function todayStr(){
 return new Date().toISOString().slice(0,10);
@@ -414,10 +415,13 @@ applyWarnings(d.tds,d.temp);
 }
 
 function loadHistory(){
+if(currentTab!==1&&currentTab!==2) return;
+if(historyInFlight) return;
+historyInFlight=true;
 let day=document.getElementById("historyDate");
 let q=day&&day.value?("?date="+encodeURIComponent(day.value)):"?date="+encodeURIComponent(todayStr());
-fetch("get-data.php"+q)
-.then(r=>r.json())
+fetch("get-data.php"+q+"&t="+Date.now(),{cache:"no-store",headers:{"Cache-Control":"no-cache"}})
+.then(r=>{if(!r.ok) throw new Error("hist");return r.json();})
 .then(data=>{
 let min=(mode==="non")?500:700;
 let max=(mode==="non")?700:900;
@@ -454,7 +458,9 @@ if(chart1){chart1.destroy();chart2.destroy();chart3.destroy();}
 chart1=new Chart(c1,{type:"line",data:{labels:labels,datasets:[{data:tempArr,borderColor:"red"}]},options:{plugins:{legend:{display:false}},responsive:true}});
 chart2=new Chart(c2,{type:"line",data:{labels:labels,datasets:[{data:tdsArr,borderColor:"blue"}]},options:{plugins:{legend:{display:false}},responsive:true}});
 chart3=new Chart(c3,{type:"line",data:{labels:labels,datasets:[{label:"Temp",data:tempArr,borderColor:"red"},{label:"TDS",data:tdsArr,borderColor:"blue"}]},options:{responsive:true}});
-});
+})
+.catch(()=>{})
+.finally(()=>{historyInFlight=false;});
 }
 
 document.getElementById("historyDate").value=todayStr();
@@ -467,9 +473,10 @@ loadOverview();
 // Tổng quan: poll 200ms khi đang ở tab 0 (gần Serial); không chồng request; không cache.
 setInterval(loadOverview,200);
 setInterval(updateStatus,1000);
+// Tab Biểu đồ + Dữ liệu: làm mới nhanh (500ms) để khớp với tổng quan / Serial sau khi bỏ gom 30s.
 setInterval(function(){
 if(currentTab===1||currentTab===2) loadHistory();
-},30000);
+},500);
 
 </script>
 

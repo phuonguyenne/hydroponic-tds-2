@@ -101,7 +101,8 @@ void loop() {
   }
 
   // ===== LUÔN ĐO & GỬI (không phụ thuộc timeinfo nữa) =====
-  if (millis() - lastMeasure > 5000) {
+  // Đo + gửi mỗi 1s để web đồng bộ với Serial (không gom 30s).
+  if (millis() - lastMeasure > 1000) {
     lastMeasure = millis();
 
     float tds = readTDS();

@@ -43,31 +43,15 @@ if ($mode === 'non') {
 
 $tempStr = (string) $temp;
 $tdsStr = (string) $tds;
-// Giờ theo PHP (đã set timezone VN trong config) — không phụ thuộc NOW() của MySQL.
 $nowStr = date('Y-m-d H:i:s');
 
-// Luôn cập nhật bản “mới nhất” cho tab Tổng quan (poll nhanh).
-$stmtLatest = $conn->prepare(
-    'INSERT INTO sensor_latest (id, `time`, temp, tds, status, mode) VALUES (1, ?, ?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE `time` = VALUES(`time`), temp = VALUES(temp), tds = VALUES(tds), status = VALUES(status), mode = VALUES(mode)'
+// Mỗi lần ESP POST → một dòng mới (web + bảng đồng bộ với Serial, không gom 30s).
+$stmt = $conn->prepare(
+    'INSERT INTO sensor_data (`time`, temp, tds, status, mode) VALUES (?, ?, ?, ?, ?)'
 );
-$stmtLatest->bind_param('sssss', $nowStr, $tempStr, $tdsStr, $status, $mode);
+$stmt->bind_param('sssss', $nowStr, $tempStr, $tdsStr, $status, $mode);
 
-if (!$stmtLatest->execute()) {
-    http_response_code(500);
-    echo 'ERR';
-    exit;
-}
-
-// Lịch sử: đúng 1 dòng / 30s theo “ô” thời gian VN (slot_ts). Cùng ô = cập nhật dòng đó (không chờ POST đúng 30s sau lần trước).
-$slot = intdiv((int) time(), 30);
-$stmtHist = $conn->prepare(
-    'INSERT INTO sensor_data (slot_ts, `time`, temp, tds, status, mode) VALUES (?, ?, ?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE `time` = VALUES(`time`), temp = VALUES(temp), tds = VALUES(tds), status = VALUES(status), mode = VALUES(mode)'
-);
-$stmtHist->bind_param('isssss', $slot, $nowStr, $tempStr, $tdsStr, $status, $mode);
-
-if (!$stmtHist->execute()) {
+if (!$stmt->execute()) {
     http_response_code(500);
     echo 'ERR';
     exit;
