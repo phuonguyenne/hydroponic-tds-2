@@ -339,21 +339,20 @@ alert("Đã xóa dữ liệu");
 function exportExcel(){window.location="export.php";}
 
 function updateStatus(){
-let now=new Date();
-let h=now.getHours();
-let m=now.getMinutes();
-let s=now.getSeconds();
-let total=h*3600+m*60+s;
-let offset=total-6*3600;
-if(offset<0){
-systemStatus.innerHTML="🌙 ĐANG NGHỈ BAN ĐÊM (tránh úng rễ)";
+const now=new Date();
+const sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+const START=6*3600;
+const END_DAY=16*3600;
+if(sec<START||sec>=END_DAY){
+systemStatus.innerHTML="🌙 NGHỈ ĐÊM — tránh úng rễ";
 return;
 }
-let cycle=offset%2400;
+const offset=sec-START;
+const cycle=offset%2400;
 if(cycle<600){
 systemStatus.innerHTML="💧 ĐANG TƯỚI (10 phút)";
 }else{
-systemStatus.innerHTML="🛑 ĐANG NGHỈ (30 phút)";
+systemStatus.innerHTML="🛑 ĐANG NGHỈ 30 PHÚT";
 }
 }
 

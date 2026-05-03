@@ -15,13 +15,13 @@ if ($apiKey !== false && $apiKey !== '') {
 $temp = isset($_POST['temp']) ? (float) $_POST['temp'] : 0;
 $tds  = isset($_POST['tds']) ? (float) $_POST['tds'] : 0;
 
-if (!file_exists('mode.txt')) {
-    file_put_contents('mode.txt', 'non');
-}
-
-$mode = trim(file_get_contents('mode.txt'));
-if ($mode === '') {
-    $mode = 'non';
+$mode = 'non';
+$r = $conn->query('SELECT mode FROM app_mode WHERE id = 1 LIMIT 1');
+if ($r && ($row = $r->fetch_assoc())) {
+    $t = trim((string) $row['mode']);
+    if ($t === 'truongthanh' || $t === 'non') {
+        $mode = $t;
+    }
 }
 
 $status = 'OK';

@@ -62,7 +62,7 @@ void loop() {
   }
 
   static unsigned long lastSend = millis();
-  if (millis() - lastSend >= 1000) { // gửi mỗi 1s — đồng bộ web/Serial
+  if (millis() - lastSend >= 5000) { // gửi mỗi 5s
     lastSend = millis();
 
     float raw = 0;

@@ -17,10 +17,11 @@ String serverMode   = String(kServerBase) + "/get-mode.php";
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 7 * 3600;   // +7 VN
 
-// CHU KỲ
+// CHU KỲ (10p tưới + 30p nghỉ = 40p; ~16 kênh/ngày → kết thúc ~16h)
 #define CYCLE_TOTAL 2400
 #define ON_TIME 600
 #define START_HOUR 6
+#define END_HOUR_DAY 16
 
 // PIN
 #define TDS_PIN 5
@@ -101,8 +102,8 @@ void loop() {
   }
 
   // ===== LUÔN ĐO & GỬI (không phụ thuộc timeinfo nữa) =====
-  // Đo + gửi mỗi 1s để web đồng bộ với Serial (không gom 30s).
-  if (millis() - lastMeasure > 1000) {
+  // Đo + gửi mỗi 5s (đủ cho web; giảm tải server).
+  if (millis() - lastMeasure > 5000) {
     lastMeasure = millis();
 
     float tds = readTDS();
@@ -118,22 +119,24 @@ void loop() {
 
     // Kiểm tra cycle để quyết định bơm hay nghỉ
     struct tm timeinfo;
-    if (getLocalTime(&timeinfo, 100)) {  // timeout ngắn hơn
+    if (getLocalTime(&timeinfo, 100)) {
       int secondsToday = timeinfo.tm_hour * 3600 + timeinfo.tm_min * 60 + timeinfo.tm_sec;
-      int offset = secondsToday - START_HOUR * 3600;
+      const int START_SEC = START_HOUR * 3600;
+      const int END_SEC = END_HOUR_DAY * 3600;
 
-      if (offset >= 0) {
+      if (secondsToday < START_SEC || secondsToday >= END_SEC) {
+        Serial.println("=== NGHỈ ĐÊM (tránh úng rễ) — ngoài 6h–16h ===");
+      } else {
+        int offset = secondsToday - START_SEC;
         int cycle = offset % CYCLE_TOTAL;
-        if (cycle < 5) pumpCount = 0;   // reset pumpCount đầu chu kỳ
+        if (cycle < 5) pumpCount = 0;
 
         if (cycle < ON_TIME) {
-          Serial.println("=== RUN (TƯỚI) ===");
+          Serial.println("=== RUN (TƯỚI 10p) ===");
           controlTDS(tds);
         } else {
-          Serial.println("=== REST (NGHỈ) ===");
+          Serial.println("=== REST (NGHỈ 30p) ===");
         }
-      } else {
-        Serial.println("=== ĐANG NGHỈ BAN ĐÊM (chờ 6h sáng) ===");
       }
     } else {
       Serial.println("Warning: Cannot get local time yet.");
@@ -179,6 +182,7 @@ String getMode() {
   if (code > 0) {
     m = http.getString();
     m.trim();
+    if (m != "non" && m != "truongthanh") m = "non";
   } else {
     Serial.print("GET mode failed, code: "); Serial.println(code);
   }

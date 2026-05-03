@@ -73,8 +73,8 @@ void loop() {
     lastSync = millis();
   }
 
-  // Đo + Serial + POST web mỗi 1 giây (đồng bộ với bảng/tổng quan, không gom 30s).
-  if (millis() - lastMeasure > 1000) {
+  // Đo + Serial + POST web mỗi 5 giây.
+  if (millis() - lastMeasure > 5000) {
     lastMeasure = millis();
 
     float tds = readTDS();
@@ -133,6 +133,7 @@ String getMode() {
   if (code > 0) {
     m = http.getString();
     m.trim();
+    if (m != "non" && m != "truongthanh") m = "non";
   } else {
     Serial.print("GET mode failed, code: "); Serial.println(code);
   }

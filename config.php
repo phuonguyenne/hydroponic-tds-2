@@ -31,3 +31,11 @@ $conn->query(
   mode VARCHAR(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
 );
+
+$conn->query(
+    'CREATE TABLE IF NOT EXISTS app_mode (
+  id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+  mode VARCHAR(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+);
+$conn->query("INSERT IGNORE INTO app_mode (id, mode) VALUES (1, 'non')");
