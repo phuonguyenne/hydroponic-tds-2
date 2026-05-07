@@ -30,6 +30,20 @@ font-weight:bold;
 font-size:24px;
 text-transform:uppercase;
 }
+.student-info{
+display:inline-block;
+margin:8px auto 0;
+padding:8px 16px;
+border:2px solid #2980b9;
+border-radius:12px;
+background:#f8fbff;
+box-shadow:0 2px 6px rgba(41,128,185,0.15);
+font-size:15px;
+font-weight:600;
+color:#2c3e50;
+text-transform:none;
+line-height:1.5;
+}
 
 /* TAB */
 .tabs{display:flex;background:#2c3e50}
@@ -195,6 +209,9 @@ font-size:15px;
 <h2>TRƯỜNG ĐẠI HỌC NÔNG LÂM THÀNH PHỐ HỒ CHÍ MINH</h2>
 <h3>KHOA CƠ KHÍ CÔNG NGHỆ</h3>
 <p>GIÁM SÁT NHIỆT ĐỘ DUNG DỊCH VÀ NỒNG ĐỘ DINH DƯỠNG TRÊN MÔ HÌNH TRỒNG RAU THỦY CANH</p>
+<div class="student-info">
+Sinh viên thực hiện: Phạm Thị Phương Uyên | MSSV: 22138117 | Lớp: DH22TD | Email: 22138117@st.hcmuaf.edu.vn
+</div>
 </div>
 <img src="/logo_khoacokhi.png?v=3" width="80" height="80" alt="Logo khoa">
 </div>
