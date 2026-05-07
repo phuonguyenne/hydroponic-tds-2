@@ -31,7 +31,10 @@ font-size:24px;
 text-transform:uppercase;
 }
 .student-info{
-display:block;
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+column-gap:28px;
+row-gap:6px;
 width:90%;
 max-width:980px;
 margin:12px auto;
@@ -49,6 +52,7 @@ text-align:left;
 box-sizing:border-box;
 }
 .student-info-title{
+grid-column:1/-1;
 text-align:left;
 font-weight:700;
 color:#2980b9;
@@ -61,6 +65,14 @@ gap:8px;
 .student-info-label{
 min-width:130px;
 font-weight:700;
+}
+@media(max-width:700px){
+.student-info{
+grid-template-columns:1fr;
+}
+.student-info-title{
+grid-column:auto;
+}
 }
 
 /* TAB */
