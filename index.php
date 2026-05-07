@@ -33,7 +33,7 @@ text-transform:uppercase;
 .student-info{
 display:inline-block;
 margin:8px auto 0;
-padding:8px 16px;
+padding:10px 18px;
 border:2px solid #2980b9;
 border-radius:12px;
 background:#f8fbff;
@@ -43,6 +43,22 @@ font-weight:600;
 color:#2c3e50;
 text-transform:none;
 line-height:1.5;
+text-align:left;
+min-width:360px;
+}
+.student-info-title{
+text-align:center;
+font-weight:700;
+color:#2980b9;
+margin-bottom:4px;
+}
+.student-info-row{
+display:flex;
+gap:8px;
+}
+.student-info-label{
+min-width:130px;
+font-weight:700;
 }
 
 /* TAB */
@@ -210,7 +226,11 @@ font-size:15px;
 <h3>KHOA CƠ KHÍ CÔNG NGHỆ</h3>
 <p>GIÁM SÁT NHIỆT ĐỘ DUNG DỊCH VÀ NỒNG ĐỘ DINH DƯỠNG TRÊN MÔ HÌNH TRỒNG RAU THỦY CANH</p>
 <div class="student-info">
-Sinh viên thực hiện: Phạm Thị Phương Uyên | MSSV: 22138117 | Lớp: DH22TD | Email: 22138117@st.hcmuaf.edu.vn
+<div class="student-info-title">THÔNG TIN SINH VIÊN</div>
+<div class="student-info-row"><span class="student-info-label">Họ và tên:</span><span>Phạm Thị Phương Uyên</span></div>
+<div class="student-info-row"><span class="student-info-label">MSSV:</span><span>22138117</span></div>
+<div class="student-info-row"><span class="student-info-label">Lớp:</span><span>DH22TD</span></div>
+<div class="student-info-row"><span class="student-info-label">Email:</span><span>22138117@st.hcmuaf.edu.vn</span></div>
 </div>
 </div>
 <img src="/logo_khoacokhi.png?v=3" width="80" height="80" alt="Logo khoa">
