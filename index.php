@@ -31,8 +31,10 @@ font-size:24px;
 text-transform:uppercase;
 }
 .student-info{
-display:inline-block;
-margin:8px auto 0;
+display:block;
+width:90%;
+max-width:980px;
+margin:12px auto;
 padding:10px 18px;
 border:2px solid #2980b9;
 border-radius:12px;
@@ -44,13 +46,13 @@ color:#2c3e50;
 text-transform:none;
 line-height:1.5;
 text-align:left;
-min-width:360px;
+box-sizing:border-box;
 }
 .student-info-title{
-text-align:center;
+text-align:left;
 font-weight:700;
 color:#2980b9;
-margin-bottom:4px;
+margin-bottom:6px;
 }
 .student-info-row{
 display:flex;
@@ -225,15 +227,16 @@ font-size:15px;
 <h2>TRƯỜNG ĐẠI HỌC NÔNG LÂM THÀNH PHỐ HỒ CHÍ MINH</h2>
 <h3>KHOA CƠ KHÍ CÔNG NGHỆ</h3>
 <p>GIÁM SÁT NHIỆT ĐỘ DUNG DỊCH VÀ NỒNG ĐỘ DINH DƯỠNG TRÊN MÔ HÌNH TRỒNG RAU THỦY CANH</p>
+</div>
+<img src="/logo_khoacokhi.png?v=3" width="80" height="80" alt="Logo khoa">
+</div>
+
 <div class="student-info">
 <div class="student-info-title">THÔNG TIN SINH VIÊN</div>
 <div class="student-info-row"><span class="student-info-label">Họ và tên:</span><span>Phạm Thị Phương Uyên</span></div>
 <div class="student-info-row"><span class="student-info-label">MSSV:</span><span>22138117</span></div>
 <div class="student-info-row"><span class="student-info-label">Lớp:</span><span>DH22TD</span></div>
 <div class="student-info-row"><span class="student-info-label">Email:</span><span>22138117@st.hcmuaf.edu.vn</span></div>
-</div>
-</div>
-<img src="/logo_khoacokhi.png?v=3" width="80" height="80" alt="Logo khoa">
 </div>
 
 <div class="tabs">
