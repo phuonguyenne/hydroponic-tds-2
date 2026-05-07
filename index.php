@@ -33,10 +33,10 @@ text-transform:uppercase;
 .student-info{
 display:grid;
 grid-template-columns:repeat(2,minmax(0,1fr));
-column-gap:18px;
+column-gap:28px;
 row-gap:6px;
 width:90%;
-max-width:860px;
+max-width:980px;
 margin:12px auto;
 padding:10px 18px;
 border:2px solid #2980b9;
@@ -60,10 +60,11 @@ margin-bottom:6px;
 }
 .student-info-row{
 display:flex;
-justify-content:center;
-gap:4px;
+justify-content:flex-start;
+gap:8px;
 }
 .student-info-label{
+min-width:130px;
 font-weight:700;
 }
 @media(max-width:700px){
