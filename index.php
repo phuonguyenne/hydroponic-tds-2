@@ -33,10 +33,10 @@ text-transform:uppercase;
 .student-info{
 display:grid;
 grid-template-columns:repeat(2,minmax(0,1fr));
-column-gap:28px;
+column-gap:18px;
 row-gap:6px;
 width:90%;
-max-width:980px;
+max-width:860px;
 margin:12px auto;
 padding:10px 18px;
 border:2px solid #2980b9;
@@ -60,10 +60,10 @@ margin-bottom:6px;
 }
 .student-info-row{
 display:flex;
-gap:2px;
+justify-content:center;
+gap:4px;
 }
 .student-info-label{
-min-width:82px;
 font-weight:700;
 }
 @media(max-width:700px){
@@ -72,6 +72,9 @@ grid-template-columns:1fr;
 }
 .student-info-title{
 grid-column:auto;
+}
+.student-info-row{
+justify-content:flex-start;
 }
 }
 
