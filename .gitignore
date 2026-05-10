@@ -1,0 +1,6 @@
+# Báo cáo / Word (không đưa lên repo)
+*.docx
+~$*
+~WRL*.tmp
+chuong4_figures/
+build_chuong4_42.py
