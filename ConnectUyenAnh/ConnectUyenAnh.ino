@@ -461,6 +461,9 @@ void setup() {
     while (1);
   }
 
+  // ===== CHỈ MỞ 1 LẦN ĐỂ SET GIỜ RTC =====
+  // rtc.adjust(DateTime(2026, 5, 8, 15, 30, 0));
+
   loadCalib();
 
   Serial.println("CAL 1000/1382 -> FLOW/ML -> PPM -> WEB ON (sau khi du calib).");
