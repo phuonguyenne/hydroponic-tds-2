@@ -15,6 +15,11 @@ const char* password = "0914859672hong.";
 const char* kServerBase = "https://hydroponic-tds-2-production.up.railway.app";
 String serverInsert = String(kServerBase) + "/insert.php";
 String serverMode   = String(kServerBase) + "/get-mode.php";
+
+/* Trùng với biến môi trường UPLOAD_API_KEY trên Railway (insert.php). Để "" nếu server không bật key.
+ * Không đẩy khóa thật lên Git công khai — có thể chỉnh cục bộ trước khi nạp. */
+const char* UPLOAD_API_KEY = "";
+
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 7 * 3600;
 
@@ -215,6 +220,9 @@ void sendData(float tds, float temp) {
   HTTPClient http;
   http.begin(serverInsert);
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  if (UPLOAD_API_KEY[0] != '\0') {
+    http.addHeader("X-Api-Key", UPLOAD_API_KEY);
+  }
   String postData = "tds=" + String(tds, 1) + "&temp=" + String(temp, 1);
   int code = http.POST(postData);
   Serial.print("HTTP POST insert.php: ");
