@@ -2,6 +2,7 @@
 
 #define TDS_PIN 5
 #define RAW_CALIB_N 30
+#define CAL_SAMPLE_INTERVAL_MS 2000
 
 static float targetPPM = 150.0f;
 static float offsetB = 0.0f; // TDS = rawAvg30 + offsetB
@@ -13,6 +14,24 @@ float readRawAvg30() {
     delay(10);
   }
   return sum / (float)RAW_CALIB_N;
+}
+
+float runCalibAndPrintSamples() {
+  float sum = 0.0f;
+  Serial.println("Bat dau lay 30 mau RAW (moi mau cach nhau 2s)...");
+  for (int i = 0; i < RAW_CALIB_N; i++) {
+    float sample = (float) analogRead(TDS_PIN);
+    sum += sample;
+    Serial.print("RAW[");
+    Serial.print(i + 1);
+    Serial.print("] = ");
+    Serial.println(sample, 3);
+
+    if (i < RAW_CALIB_N - 1) {
+      delay(CAL_SAMPLE_INTERVAL_MS);
+    }
+  }
+  return sum / (float) RAW_CALIB_N;
 }
 
 void printHelp() {
@@ -37,7 +56,7 @@ void loop() {
     cmd.trim();
 
     if (cmd.equalsIgnoreCase("CAL")) {
-      float rawRef = readRawAvg30();
+      float rawRef = runCalibAndPrintSamples();
       offsetB = targetPPM - rawRef;
       Serial.print("RAW_REF_AVG30 = ");
       Serial.println(rawRef, 3);

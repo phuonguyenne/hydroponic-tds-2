@@ -80,6 +80,17 @@ float readTempRaw() {
   return t;
 }
 
+// Cong thuc calib nhiet do (giu giong code done sever)
+float readTempCalibrated() {
+  sensors.requestTemperatures();
+  float x = sensors.getTempCByIndex(0);
+  if (x == DEVICE_DISCONNECTED_C) {
+    Serial.println("Temp sensor error!");
+    return 25.0f;
+  }
+  return -0.027f * x * x + 2.473f * x - 19.535f;
+}
+
 float readRawAvg30() {
   float sum = 0.0f;
   for (int i = 0; i < 30; i++) {
@@ -286,8 +297,8 @@ void loop() {
       Serial.println("WEB POST OFF");
     } else if (cmd == "SHOW") {
       float tds = readTDS_NoTempComp();
-      temperature = readTempRaw();
-      Serial.print("TempRaw=");
+      temperature = readTempCalibrated();
+      Serial.print("TempCalib=");
       Serial.print(temperature, 2);
       Serial.print(" | TDS=");
       Serial.print(tds, 2);
@@ -315,13 +326,13 @@ void loop() {
       lastMeasure = millis();
 
       float tdsWeb = readTDS_NoTempComp();
-      float tempWeb = readTempRaw();
+      float tempWeb = readTempCalibrated();
       mode = getMode();
 
       Serial.println("=== POST WEB ===");
       Serial.print("TDS: ");
       Serial.println(tdsWeb);
-      Serial.print("TempRaw: ");
+      Serial.print("TempCalib: ");
       Serial.println(tempWeb);
       Serial.print("Mode: ");
       Serial.println(mode);
