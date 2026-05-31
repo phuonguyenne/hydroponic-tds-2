@@ -398,18 +398,21 @@ alert("Đã xóa dữ liệu");
 
 function exportExcel(){window.location="export.php";}
 
-function updateStatus(){
+function getCyclePhase(){
 const now=new Date();
 const sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
 const START=6*3600;
 const END_DAY=16*3600;
-if(sec<START||sec>=END_DAY){
-systemStatus.innerHTML="🌙 NGHỈ ĐÊM — tránh úng rễ";
-return;
+if(sec<START||sec>=END_DAY) return "night";
+const cycle=(sec-START)%2400;
+return cycle<600?"dose":"rest";
 }
-const offset=sec-START;
-const cycle=offset%2400;
-if(cycle<600){
+
+function updateStatus(){
+const phase=getCyclePhase();
+if(phase==="night"){
+systemStatus.innerHTML="🌙 NGHỈ ĐÊM — tránh úng rễ";
+}else if(phase==="dose"){
 systemStatus.innerHTML="💧 ĐANG TƯỚI (10 phút)";
 }else{
 systemStatus.innerHTML="🛑 ĐANG NGHỈ 30 PHÚT";
@@ -424,7 +427,10 @@ let tmp=parseFloat(tempVal);
 if(isNaN(t)) t=0;
 if(isNaN(tmp)) tmp=0;
 
-if(t<min){
+if(getCyclePhase()==="rest"){
+warnTDS.className="card ok";
+warnTDS.innerHTML="<div class='warn-title'>🛑 ĐANG NGHỈ 30 PHÚT</div><div class='warn-text'>Hệ thống tạm dừng bơm phân. TDS vẫn được đo và hiển thị.</div>";
+}else if(t<min){
 warnTDS.className="card low";
 warnTDS.innerHTML="<div class='warn-title'>⚠️ TDS THẤP</div><div class='warn-text'>❌  Thiếu dinh dưỡng<br>📉 Ảnh hưởng => cây chậm lớn, lá nhỏ, rễ yếu<br>✅ Khuyến nghị => thêm dung dịch A+B từ từ</div>";
 }else if(t>max){
