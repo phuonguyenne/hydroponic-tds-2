@@ -155,6 +155,11 @@ color:#f39c12;
 animation:blink 1s infinite;
 }
 
+.warn-mild{
+border:3px solid #f1c40f;
+color:#d68910;
+}
+
 .high{
 border:3px solid #e74c3c;
 color:#e74c3c;
@@ -448,9 +453,9 @@ warnTDS.className="card ok";
 warnTDS.innerHTML="<div class='warn-title'>✅ TDS PHÙ HỢP</div><div class='warn-text'>Hệ thống đang cân bằng dinh dưỡng</div>";
 }
 
-if(tmp>32){
-warnTemp.className="card high";
-warnTemp.innerHTML="<div class='warn-title'>⚠️ NHIỆT CAO</div><div class='warn-text'>❌  Nhiệt dung dịch cao<br>📉 Ảnh hưởng => giảm oxy, hại rễ<br>✅ Khuyến nghị => làm mát dung dịch</div>";
+if(tmp>30){
+warnTemp.className="card warn-mild";
+warnTemp.innerHTML="<div class='warn-title'>⚠️ NHIỆT HƠI CAO</div><div class='warn-text'>📌 Cảnh báo nhẹ — nhiệt ≥ 30°C<br>📉 Theo dõi thêm, tránh tăng cao hơn<br>✅ Khuyến nghị => làm mát nhẹ dung dịch nếu có thể</div>";
 }else if(tmp<18){
 warnTemp.className="card low";
 warnTemp.innerHTML="<div class='warn-title'>⚠️ NHIỆT THẤP</div><div class='warn-text'>❌  Nhiệt thấp<br>📉 Ảnh hưởng => cây hấp thụ kém<br>✅ Khuyến nghị => tăng nhiệt</div>";
@@ -525,7 +530,8 @@ if(phase==="rest"){
 cls="safe-row";
 status="ĐANG NGHỈ 30 PHÚT";
 }else if(xt<min||xtmp<18){cls="low-row";status="LOW (CẢNH BÁO)";}
-else if(xt>max||xtmp>32){cls="high-row";status="HIGH (CẢNH BÁO)";}
+else if(xt>max){cls="high-row";status="HIGH (CẢNH BÁO)";}
+else if(xtmp>30){cls="low-row";status="WARM (CẢNH BÁO NHẸ)";}
 let rowMode=(x.mode==="truongthanh")?"🌿 Trưởng thành":"🌱 Cây non";
 html+=`<tr class="${cls}"><td>${x.time}</td><td>${x.tds}</td><td>${x.temp}</td><td>${status}</td><td>${rowMode}</td></tr>`;
 });
