@@ -398,9 +398,16 @@ alert("Đã xóa dữ liệu");
 
 function exportExcel(){window.location="export.php";}
 
-function getCyclePhase(){
-const now=new Date();
-const sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+function getCyclePhase(at){
+let sec;
+if(typeof at==="string"&&at.length>=8){
+const m=at.match(/(\d{1,2}):(\d{2}):(\d{2})/);
+if(m) sec=parseInt(m[1],10)*3600+parseInt(m[2],10)*60+parseInt(m[3],10);
+}
+if(sec===undefined){
+const now=at instanceof Date?at:new Date();
+sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+}
 const START=6*3600;
 const END_DAY=16*3600;
 if(sec<START||sec>=END_DAY) return "night";
@@ -506,7 +513,11 @@ let cls="safe-row";
 let status="SAFE (TDS OK + TEMP OK)";
 let xt=parseFloat(x.tds)||0;
 let xtmp=parseFloat(x.temp)||0;
-if(xt<min||xtmp<18){cls="low-row";status="LOW (CẢNH BÁO)";}
+const phase=getCyclePhase(x.time);
+if(phase==="rest"){
+cls="safe-row";
+status="ĐANG NGHỈ 30 PHÚT";
+}else if(xt<min||xtmp<18){cls="low-row";status="LOW (CẢNH BÁO)";}
 else if(xt>max||xtmp>30){cls="high-row";status="HIGH (CẢNH BÁO)";}
 let rowMode=(x.mode==="truongthanh")?"🌿 Trưởng thành":"🌱 Cây non";
 html+=`<tr class="${cls}"><td>${x.time}</td><td>${x.tds}</td><td>${x.temp}</td><td>${status}</td><td>${rowMode}</td></tr>`;
