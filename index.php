@@ -448,7 +448,7 @@ warnTDS.className="card ok";
 warnTDS.innerHTML="<div class='warn-title'>✅ TDS PHÙ HỢP</div><div class='warn-text'>Hệ thống đang cân bằng dinh dưỡng</div>";
 }
 
-if(tmp>30){
+if(tmp>32){
 warnTemp.className="card high";
 warnTemp.innerHTML="<div class='warn-title'>⚠️ NHIỆT CAO</div><div class='warn-text'>❌  Nhiệt dung dịch cao<br>📉 Ảnh hưởng => giảm oxy, hại rễ<br>✅ Khuyến nghị => làm mát dung dịch</div>";
 }else if(tmp<18){
@@ -525,7 +525,7 @@ if(phase==="rest"){
 cls="safe-row";
 status="ĐANG NGHỈ 30 PHÚT";
 }else if(xt<min||xtmp<18){cls="low-row";status="LOW (CẢNH BÁO)";}
-else if(xt>max||xtmp>30){cls="high-row";status="HIGH (CẢNH BÁO)";}
+else if(xt>max||xtmp>32){cls="high-row";status="HIGH (CẢNH BÁO)";}
 let rowMode=(x.mode==="truongthanh")?"🌿 Trưởng thành":"🌱 Cây non";
 html+=`<tr class="${cls}"><td>${x.time}</td><td>${x.tds}</td><td>${x.temp}</td><td>${status}</td><td>${rowMode}</td></tr>`;
 });
