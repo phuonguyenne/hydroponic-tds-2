@@ -507,8 +507,15 @@ if(chart3){chart3.destroy();chart3=null;}
 return;
 }
 
-/* Bảng: API trả id DESC — mới nhất trên cùng. Biểu đồ: cần thời gian tăng dần → đảo bản sao. */
-data.forEach(x=>{
+/* Bảng: 1 dòng/phút (ESP ~5s/lần). Biểu đồ: dùng full data, thời gian tăng dần → đảo bản sao. */
+const tableMinuteSeen=new Set();
+const tableRows=data.filter(x=>{
+const key=String(x.time).slice(0,16);
+if(tableMinuteSeen.has(key)) return false;
+tableMinuteSeen.add(key);
+return true;
+});
+tableRows.forEach(x=>{
 let cls="safe-row";
 let status="SAFE (TDS OK + TEMP OK)";
 let xt=parseFloat(x.tds)||0;
