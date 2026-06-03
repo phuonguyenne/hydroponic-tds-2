@@ -414,7 +414,7 @@ const now=at instanceof Date?at:new Date();
 sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
 }
 const START=6*3600;
-const END_DAY=16*3600;
+const END_DAY=16*3600+10*60; // 16:10 — khớp ESP (tránh úng rễ)
 if(sec<START||sec>=END_DAY) return "night";
 const cycle=(sec-START)%2400;
 return cycle<600?"dose":"rest";
@@ -439,9 +439,13 @@ let tmp=parseFloat(tempVal);
 if(isNaN(t)) t=0;
 if(isNaN(tmp)) tmp=0;
 
-if(getCyclePhase()==="rest"){
+const tdsPhase=getCyclePhase();
+if(tdsPhase==="rest"){
 warnTDS.className="card ok";
 warnTDS.innerHTML="<div class='warn-title'>🛑 ĐANG NGHỈ 30 PHÚT</div><div class='warn-text'>Hệ thống tạm dừng bơm phân. TDS vẫn được đo và hiển thị.</div>";
+}else if(tdsPhase==="night"){
+warnTDS.className="card ok";
+warnTDS.innerHTML="<div class='warn-title'>🌙 NGHỈ ĐÊM — TRÁNH ÚNG RỄ</div><div class='warn-text'>Sau 16:10 hệ thống không bơm phân. TDS vẫn được đo và hiển thị.</div>";
 }else if(t<min){
 warnTDS.className="card low";
 warnTDS.innerHTML="<div class='warn-title'>⚠️ TDS THẤP</div><div class='warn-text'>❌  Thiếu dinh dưỡng<br>📉 Ảnh hưởng => cây chậm lớn, lá nhỏ, rễ yếu<br>✅ Khuyến nghị => thêm dung dịch A+B từ từ</div>";
@@ -529,6 +533,9 @@ const phase=getCyclePhase(x.time);
 if(phase==="rest"){
 cls="safe-row";
 status="ĐANG NGHỈ 30 PHÚT";
+}else if(phase==="night"){
+cls="safe-row";
+status="NGHỈ ĐÊM — TRÁNH ÚNG RỄ";
 }else if(xt<min||xtmp<18){cls="low-row";status="LOW (CẢNH BÁO)";}
 else if(xt>max){cls="high-row";status="HIGH (CẢNH BÁO)";}
 else if(xtmp>30){cls="low-row";status="WARM (CẢNH BÁO NHẸ)";}
