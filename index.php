@@ -571,11 +571,37 @@ tempArr.push(parseFloat(x.temp)||0);
 
 tableData.innerHTML=html;
 
-// Trục Y nhiệt độ cố định mọi ngày (đồng bộ khi đổi ngày), bước 1°C
-const TEMP_CHART_Y_MIN=18;
-const TEMP_CHART_Y_MAX=35;
+// Trục Y nhiệt độ (chart1): rộng theo dữ liệu ngày, vạch cố định 4°C mọi ngày
+const TEMP_Y_STEP=4;
+function tempChartYScale(arr){
+const PAD=5;
+const MIN_SPAN=16;
+let dMin=Infinity,dMax=-Infinity;
+for(let i=0;i<arr.length;i++){
+const v=arr[i];
+if(!isFinite(v)) continue;
+if(v<dMin) dMin=v;
+if(v>dMax) dMax=v;
+}
+if(!isFinite(dMin)){ return {min:20,max:36}; }
+const mid=(dMin+dMax)/2;
+const dataSpan=dMax-dMin;
+const span=Math.max(dataSpan+2*PAD,MIN_SPAN);
+let min=mid-span/2;
+let max=mid+span/2;
+min=Math.floor(min/TEMP_Y_STEP)*TEMP_Y_STEP;
+max=Math.ceil(max/TEMP_Y_STEP)*TEMP_Y_STEP;
+while(max-min<MIN_SPAN){
+min-=TEMP_Y_STEP;
+max+=TEMP_Y_STEP;
+}
+return {min,max};
+}
+const tempYOpts={ticks:{stepSize:TEMP_Y_STEP},title:{display:true,text:"°C"}};
+
 if(chart1){chart1.destroy();chart2.destroy();chart3.destroy();}
-chart1=new Chart(c1,{type:"line",data:{labels:labels,datasets:[{data:tempArr,borderColor:"red",tension:0.2}]},options:{plugins:{legend:{display:false}},responsive:true,scales:{y:{min:TEMP_CHART_Y_MIN,max:TEMP_CHART_Y_MAX,ticks:{stepSize:1},title:{display:true,text:"°C"}}}}});
+const tempY=tempChartYScale(tempArr);
+chart1=new Chart(c1,{type:"line",data:{labels:labels,datasets:[{data:tempArr,borderColor:"red",tension:0.2}]},options:{plugins:{legend:{display:false}},responsive:true,scales:{y:{min:tempY.min,max:tempY.max,...tempYOpts}}}});
 chart2=new Chart(c2,{type:"line",data:{labels:labels,datasets:[{data:tdsArr,borderColor:"blue"}]},options:{plugins:{legend:{display:false}},responsive:true}});
 chart3=new Chart(c3,{type:"line",data:{labels:labels,datasets:[{label:"Temp",data:tempArr,borderColor:"red"},{label:"TDS",data:tdsArr,borderColor:"blue"}]},options:{responsive:true}});
 })
