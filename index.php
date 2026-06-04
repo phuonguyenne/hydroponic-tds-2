@@ -213,6 +213,10 @@ font-weight:bold;
 font-size:18px;
 margin-bottom:10px;
 }
+/* Biểu đồ nhiệt độ: tỷ lệ ngang rộng → đường nhìn phẳng hơn */
+.chart-box-temp canvas{
+max-height:220px;
+}
 
 /* STATUS */
 .status{
@@ -302,7 +306,7 @@ font-size:15px;
 
 <!-- TAB 2 -->
 <div class="tab">
-<div class="chart-box">
+<div class="chart-box chart-box-temp">
 <div class="chart-title">📈 Biểu đồ Nhiệt độ theo Thời gian</div>
 <canvas id="c1"></canvas>
 </div>
@@ -571,13 +575,13 @@ tempArr.push(parseFloat(x.temp)||0);
 
 tableData.innerHTML=html;
 
-// Trục Y nhiệt độ (chart1): cố định 20–35°C, vạch 5°C mọi ngày
-const TEMP_Y_MIN=20;
-const TEMP_Y_MAX=35;
+// Trục Y nhiệt độ (chart1): cố định rộng 10–45°C, vạch 5°C — chênh ít trên chart trông gần thẳng
+const TEMP_Y_MIN=10;
+const TEMP_Y_MAX=45;
 const TEMP_Y_STEP=5;
 
 if(chart1){chart1.destroy();chart2.destroy();chart3.destroy();}
-chart1=new Chart(c1,{type:"line",data:{labels:labels,datasets:[{data:tempArr,borderColor:"red",tension:0.2}]},options:{plugins:{legend:{display:false}},responsive:true,scales:{y:{min:TEMP_Y_MIN,max:TEMP_Y_MAX,ticks:{stepSize:TEMP_Y_STEP},title:{display:true,text:"°C"}}}}});
+chart1=new Chart(c1,{type:"line",data:{labels:labels,datasets:[{data:tempArr,borderColor:"red",borderWidth:2,pointRadius:0,pointHitRadius:6}]},options:{plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:true,aspectRatio:4,scales:{y:{min:TEMP_Y_MIN,max:TEMP_Y_MAX,ticks:{stepSize:TEMP_Y_STEP},title:{display:true,text:"°C"}}},elements:{line:{tension:0}}}});
 chart2=new Chart(c2,{type:"line",data:{labels:labels,datasets:[{data:tdsArr,borderColor:"blue"}]},options:{plugins:{legend:{display:false}},responsive:true}});
 chart3=new Chart(c3,{type:"line",data:{labels:labels,datasets:[{label:"Temp",data:tempArr,borderColor:"red"},{label:"TDS",data:tdsArr,borderColor:"blue"}]},options:{responsive:true}});
 })
