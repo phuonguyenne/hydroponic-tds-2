@@ -1,7 +1,7 @@
 <?php
 include 'config.php';
 
-header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+header('Content-Type: text/tab-separated-values; charset=UTF-8');
 header('Cache-Control: no-store');
 
 $date = isset($_GET['date']) ? trim((string) $_GET['date']) : '';
@@ -54,34 +54,37 @@ function export_normalize_mode(?string $raw): string
     return str_contains($m, 'truong') ? 'truongthanh' : 'non';
 }
 
+/** Chi chu ASCII cho Excel (khong icon, khong dau, tranh loi font). */
 function export_display_status(string $phase, float $tds, float $temp, string $plantMode): string
 {
     if ($phase === 'rest') {
-        return 'ĐANG NGHỈ 30 PHÚT';
+        return 'Dang nghi 30 phut';
     }
     if ($phase === 'night') {
-        return 'NGHỈ ĐÊM — TRÁNH ÚNG RỄ';
+        return 'Nghi dem - tranh ung re';
     }
     $norm = export_normalize_mode($plantMode);
     $min = $norm === 'truongthanh' ? 700.0 : 500.0;
     $max = $norm === 'truongthanh' ? 900.0 : 700.0;
     if ($tds < $min || $temp < 18) {
-        return 'LOW (CẢNH BÁO)';
+        return 'LOW (canh bao)';
     }
     if ($tds > $max) {
-        return 'HIGH (CẢNH BÁO)';
+        return 'HIGH (canh bao)';
     }
     if ($temp > 30) {
-        return 'WARM (CẢNH BÁO NHẸ)';
+        return 'WARM (canh bao nhe)';
     }
     return 'SAFE (TDS OK + TEMP OK)';
 }
 
 function export_mode_label(?string $raw): string
 {
-    return export_normalize_mode($raw) === 'truongthanh' ? 'Trưởng thành' : 'Cây non';
+    return export_normalize_mode($raw) === 'truongthanh' ? 'Cay truong thanh' : 'Cay non';
 }
 
+// BOM UTF-8 giup Excel doc tieng Viet; status/mode dung chu thuong ASCII.
+echo "\xEF\xBB\xBF";
 echo "Time\tTDS\tTemp\tStatus\tMode\n";
 
 if ($date !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
