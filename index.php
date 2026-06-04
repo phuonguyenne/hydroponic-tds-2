@@ -571,28 +571,11 @@ tempArr.push(parseFloat(x.temp)||0);
 
 tableData.innerHTML=html;
 
-function tempChartYScale(arr,pad){
-let min=Infinity,max=-Infinity;
-for(let i=0;i<arr.length;i++){
-const v=arr[i];
-if(!isFinite(v)) continue;
-if(v<min) min=v;
-if(v>max) max=v;
-}
-if(!isFinite(min)){ return {min:18,max:35}; }
-min=Math.max(0,min-pad);
-max=max+pad;
-if(max-min<4){
-const mid=(min+max)/2;
-min=mid-2;
-max=mid+2;
-}
-return {min,max};
-}
-
+// Trục Y nhiệt độ cố định mọi ngày (đồng bộ khi đổi ngày), bước 1°C
+const TEMP_CHART_Y_MIN=18;
+const TEMP_CHART_Y_MAX=35;
 if(chart1){chart1.destroy();chart2.destroy();chart3.destroy();}
-const tempY=tempChartYScale(tempArr,3);
-chart1=new Chart(c1,{type:"line",data:{labels:labels,datasets:[{data:tempArr,borderColor:"red",tension:0.2}]},options:{plugins:{legend:{display:false}},responsive:true,scales:{y:{min:tempY.min,max:tempY.max,title:{display:true,text:"°C"}}}}});
+chart1=new Chart(c1,{type:"line",data:{labels:labels,datasets:[{data:tempArr,borderColor:"red",tension:0.2}]},options:{plugins:{legend:{display:false}},responsive:true,scales:{y:{min:TEMP_CHART_Y_MIN,max:TEMP_CHART_Y_MAX,ticks:{stepSize:1},title:{display:true,text:"°C"}}}}});
 chart2=new Chart(c2,{type:"line",data:{labels:labels,datasets:[{data:tdsArr,borderColor:"blue"}]},options:{plugins:{legend:{display:false}},responsive:true}});
 chart3=new Chart(c3,{type:"line",data:{labels:labels,datasets:[{label:"Temp",data:tempArr,borderColor:"red"},{label:"TDS",data:tdsArr,borderColor:"blue"}]},options:{responsive:true}});
 })
