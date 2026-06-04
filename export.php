@@ -1,7 +1,7 @@
 <?php
 include 'config.php';
 
-header('Content-Type: text/tab-separated-values; charset=UTF-8');
+header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
 header('Cache-Control: no-store');
 
 $date = isset($_GET['date']) ? trim((string) $_GET['date']) : '';
@@ -9,6 +9,11 @@ $filename = ($date !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date))
     ? "data_{$date}.xls"
     : 'data.xls';
 header("Content-Disposition: attachment; filename={$filename}");
+
+function export_h(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
 
 function export_second_of_day(string $time): ?int
 {
@@ -54,7 +59,6 @@ function export_normalize_mode(?string $raw): string
     return str_contains($m, 'truong') ? 'truongthanh' : 'non';
 }
 
-/** Chi chu ASCII cho Excel (khong icon, khong dau, tranh loi font). */
 function export_display_status(string $phase, float $tds, float $temp, string $plantMode): string
 {
     if ($phase === 'rest') {
@@ -83,9 +87,7 @@ function export_mode_label(?string $raw): string
     return export_normalize_mode($raw) === 'truongthanh' ? 'Cay truong thanh' : 'Cay non';
 }
 
-// BOM UTF-8 giup Excel doc tieng Viet; status/mode dung chu thuong ASCII.
-echo "\xEF\xBB\xBF";
-echo "Time\tTDS\tTemp\tStatus\tMode\n";
+$rows = [];
 
 if ($date !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
     $stmt = $conn->prepare(
@@ -113,9 +115,59 @@ if ($result) {
         $tds = (float) $row['tds'];
         $temp = (float) $row['temp'];
         $mode = (string) ($row['mode'] ?? 'non');
-        $status = export_display_status($phase, $tds, $temp, $mode);
-        $modeLabel = export_mode_label($mode);
-
-        echo "{$time}\t{$row['tds']}\t{$row['temp']}\t{$status}\t{$modeLabel}\n";
+        $rows[] = [
+            'time' => $time,
+            'tds' => (string) $row['tds'],
+            'temp' => (string) $row['temp'],
+            'status' => export_display_status($phase, $tds, $temp, $mode),
+            'mode' => export_mode_label($mode),
+        ];
     }
 }
+
+echo "\xEF\xBB\xBF";
+?>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<style>
+table.data-export { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 11pt; }
+table.data-export th, table.data-export td {
+  border: 1px solid #333333;
+  padding: 6px 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+table.data-export th {
+  background-color: #2980b9;
+  color: #ffffff;
+  font-weight: bold;
+}
+table.data-export tr:nth-child(even) td { background-color: #f5f9fc; }
+</style>
+</head>
+<body>
+<table class="data-export" border="1" cellspacing="0" cellpadding="4">
+<thead>
+<tr>
+<th>Time</th>
+<th>TDS (ppm)</th>
+<th>Temp (C)</th>
+<th>Status</th>
+<th>Mode</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($rows as $r) : ?>
+<tr>
+<td><?= export_h($r['time']) ?></td>
+<td><?= export_h($r['tds']) ?></td>
+<td><?= export_h($r['temp']) ?></td>
+<td><?= export_h($r['status']) ?></td>
+<td><?= export_h($r['mode']) ?></td>
+</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
+</body>
+</html>
