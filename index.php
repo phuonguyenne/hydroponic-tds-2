@@ -401,7 +401,11 @@ alert("Đã xóa dữ liệu");
 }).catch(()=>alert("Xóa thất bại."));
 }
 
-function exportExcel(){window.location="export.php";}
+function exportExcel(){
+let day=document.getElementById("historyDate");
+let q=day&&day.value?("?date="+encodeURIComponent(day.value)):"?date="+encodeURIComponent(todayStr());
+window.location="export.php"+q;
+}
 
 function getCyclePhase(at){
 let sec;
@@ -418,6 +422,22 @@ const END_DAY=16*3600+10*60; // 16:10 — khớp ESP (tránh úng rễ)
 if(sec<START||sec>=END_DAY) return "night";
 const cycle=(sec-START)%2400;
 return cycle<600?"dose":"rest";
+}
+
+/** Gom bảng: dose 1/phút, nghỉ 30p 1/5 phút, đêm 1/30 phút */
+function tableBucketKey(timeStr,phase){
+const s=String(timeStr);
+const dateHour=s.length>=13?s.slice(0,13):"";
+const min=s.length>=16?parseInt(s.slice(14,16),10):0;
+if(phase==="night"){
+const slot=Math.floor(min/30)*30;
+return dateHour+":"+String(slot).padStart(2,"0");
+}
+if(phase==="rest"){
+const slot=Math.floor(min/5)*5;
+return dateHour+":"+String(slot).padStart(2,"0");
+}
+return s.slice(0,16);
 }
 
 function updateStatus(){
@@ -516,12 +536,12 @@ if(chart3){chart3.destroy();chart3=null;}
 return;
 }
 
-/* Bảng: 1 dòng/phút (ESP ~5s/lần). Biểu đồ: dùng full data, thời gian tăng dần → đảo bản sao. */
-const tableMinuteSeen=new Set();
+/* Bảng: dose 1/phút, nghỉ 30p 1/5p, đêm 1/30p. Biểu đồ: full data. */
+const tableBucketSeen=new Set();
 const tableRows=data.filter(x=>{
-const key=String(x.time).slice(0,16);
-if(tableMinuteSeen.has(key)) return false;
-tableMinuteSeen.add(key);
+const key=tableBucketKey(x.time,getCyclePhase(x.time));
+if(tableBucketSeen.has(key)) return false;
+tableBucketSeen.add(key);
 return true;
 });
 tableRows.forEach(x=>{
